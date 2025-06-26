@@ -49,7 +49,6 @@ class Player(GameSprite):
 class Bot(GameSprite):
     def __init__(self, image, x=WIDTH-100, y=HEIGHT//2):
         super().__init__(image, x, y)
-        # self.hitbox.center = (600, 250)
         self.collidehitbox = pygame.Rect(self.hitbox.left, self.hitbox.top, 1, self.hitbox.height)
         self.speed = 8
         self.points = 0
@@ -191,67 +190,79 @@ class GameModeController():
 
     def update(self):
         if not self.gamemode_is_chosen:
-            for text in self.gamemode:
-                window.blit(text.image, text.hitbox)
-            
-            keys = pygame.key.get_pressed()
-            
-            if keys[pygame.K_1]:
-                self.enemy_is_a_bot = True
-                self.gamemode_is_chosen = True
-            elif keys[pygame.K_2]:
-                self.enemy_is_a_bot = False
-                self.gamemode_is_chosen = True
+            self.choose_gamemode()
 
         if self.gamemode_is_chosen and not self.controls_are_chosen:
-            for text in self.controls:
-                window.blit(text.image, text.hitbox)
-
-            keys = pygame.key.get_pressed()
-            
-            if keys[pygame.K_3]:
-                self.p1_uses_arrows = False
-                self.controls_are_chosen = True
-            elif keys[pygame.K_4]:
-                self.p1_uses_arrows = True
-                self.controls_are_chosen = True
+            self.choose_controls()
 
         if self.gamemode_is_chosen and self.controls_are_chosen and not self.time_is_chosen:
-            for text in self.time:
-                window.blit(text.image, text.hitbox)
-            timestr = None
-            bigstr = ''
-            iteration = 0
-            for item in self.timestr_list:
-                iteration += 1
-                bigstr += str('['+str(iteration)+'] - '+item[0] + ':' + item[1:3]+ '; ')
-            
-            keys = pygame.key.get_pressed()
+            self.choose_timer()
 
-            if keys[pygame.K_1]:
-                timestr = self.timestr_list[0]
-            elif keys[pygame.K_2]:
-                timestr = self.timestr_list[1]
-            elif keys[pygame.K_3]:
-                timestr = self.timestr_list[2]
-            elif keys[pygame.K_4]:
-                timestr = self.timestr_list[3]
-            elif keys[pygame.K_5]:
-                timestr = self.timestr_list[4]
-            elif keys[pygame.K_6]:
-                timestr = self.timestr_list[5]
-            
-            if timestr != None:
-                timer.minutes = int(timestr[0])
-                timer.seconds = int(timestr[1] + timestr[2])
+    def choose_gamemode(self):
+        for text in self.gamemode:
+            window.blit(text.image, text.hitbox)
+        
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_1]:
+            self.enemy_is_a_bot = True
+            self.gamemode_is_chosen = True
+        elif keys[pygame.K_2]:
+            self.enemy_is_a_bot = False
+            self.gamemode_is_chosen = True
 
-            if keys[pygame.K_c]:
-                self.time_is_chosen = True
-                self.complete = True
-            
-            self.time[1].image = robotroc.render(bigstr, False, WHITE)
-            self.time[1].hitbox = self.time[1].image.get_rect(center=(WIDTH//2, HEIGHT//3*2))
-            timer.show_the_time()
+    def choose_controls(self):
+        for text in self.controls:
+            window.blit(text.image, text.hitbox)
+
+        keys = pygame.key.get_pressed()
+        
+        if keys[pygame.K_3]:
+            self.p1_uses_arrows = False
+            self.controls_are_chosen = True
+        elif keys[pygame.K_4]:
+            self.p1_uses_arrows = True
+            self.controls_are_chosen = True
+
+    def choose_timer(self):
+        for text in self.time:
+            window.blit(text.image, text.hitbox)
+
+        timestr = None
+        bigstr = ''
+        iteration = 0
+        for item in self.timestr_list:
+            iteration += 1
+            bigstr += str('['+str(iteration)+'] - '+item[0] + ':' + item[1:3]+ '; ')
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_1]:
+            timestr = self.timestr_list[0]
+        elif keys[pygame.K_2]:
+            timestr = self.timestr_list[1]
+        elif keys[pygame.K_3]:
+            timestr = self.timestr_list[2]
+        elif keys[pygame.K_4]:
+            timestr = self.timestr_list[3]
+        elif keys[pygame.K_5]:
+            timestr = self.timestr_list[4]
+        elif keys[pygame.K_6]:
+            timestr = self.timestr_list[5]
+        
+        if timestr != None:
+            timer.minutes = int(timestr[0])
+            timer.seconds = int(timestr[1] + timestr[2])
+
+        if keys[pygame.K_c]:
+            self.time_is_chosen = True
+            self.complete = True
+        
+        self.time[1].image = robotroc.render(bigstr, False, WHITE)
+        self.time[1].hitbox = self.time[1].image.get_rect(center=(WIDTH//2, HEIGHT//3*2))
+        timer.show_the_time()
+
+
 
 
 ''' F U N C T I O N S'''
@@ -274,12 +285,12 @@ pygame.font.init()
 robotroc = pygame.font.Font('font/RobotRocNotATilter-YjKL.ttf', 16)
 big_robotroc = pygame.font.Font('font/RobotRoc-8X2A.ttf', 60)
 mid_robotroc = pygame.font.Font('font/RobotRoc-8X2A.ttf', 30)
-# verdana = pygame.font.SysFont('verdana', 32, True, False)
 
 p_for_pause_text = robotroc.render('[P] - pause', False, WHITE)
 pause_text = big_robotroc.render('PAUSED', False, WHITE)
 continue_text = robotroc.render('[C] - continue', False, WHITE)
 reset_text = robotroc.render('[R] - reset', False, WHITE)
+q_to_quit_text = robotroc.render('[Q] - quit game', False, WHITE)
 
 arrows_text = robotroc.render('Use arrows to move', False, WHITE)
 
@@ -312,6 +323,7 @@ pauseText = GameSprite(pause_text, x=WIDTH//2, y=HEIGHT//2)
 continueText = GameSprite(continue_text, x=WIDTH//2, y=HEIGHT//3*2)
 resetText = GameSprite(reset_text, x=WIDTH//2, y=HEIGHT//3*2+20)
 timeoutText = GameSprite(time_out_text, x=WIDTH//2, y=HEIGHT//2)
+quitText = GameSprite(q_to_quit_text, x=WIDTH//2, y=HEIGHT//3*2+40)
 
 line = GameSprite(pygame.Surface((10, HEIGHT)), x=WIDTH//2, y=HEIGHT//2)
 line.image.fill((92, 92, 92)) # grey
@@ -352,8 +364,6 @@ while running:
     ball.count_2_secs()
 
     window.blit(p_for_pause_text, (0, 0))
-    # window.blit(arrows_text, (0, 20))
-    # window.blit(pause_text, (200, 200))
 
     if paused:
         keys = pygame.key.get_pressed()
@@ -368,9 +378,14 @@ while running:
             finish_priority = True
             paused = False
             reset()
+
+        if keys[pygame.K_q]:
+            running = False
+
         window.blit(pauseText.image, pauseText.hitbox)
         window.blit(continueText.image, continueText.hitbox)
         window.blit(resetText.image, resetText.hitbox)
+        window.blit(quitText.image, quitText.hitbox)
         timer.update()
         
     else:
@@ -391,23 +406,26 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # timer = big_robotroc.render(str(i_2),False, WHITE)
     window.blit(timer.image, timer.hitbox)
     if not finish:
         timer.update()
         if not finish_priority:
             time_out_bool = timer.check_the_time()
             finish = time_out_bool
-    # pause = timer.check_the_time()
             
     if time_out_bool:
         window.blit(timeoutText.image, timeoutText.hitbox)
         window.blit(resetText.image, (resetText.hitbox.x, resetText.hitbox.y - 20))
+        window.blit(quitText.image, (quitText.hitbox.x, quitText.hitbox.y - 20))
+
         if keys[pygame.K_r]:
             finish = True
             finish_priority = True
             reset()
             time_out_bool = False
+
+        if keys[pygame.K_q]:
+            running = False
 
     window.blit(count.image, count.hitbox)
     count.update()
